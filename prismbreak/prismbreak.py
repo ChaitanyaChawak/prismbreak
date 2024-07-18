@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 import argparse
+import os
 
 def main(args):
   root = args.root
@@ -12,7 +13,28 @@ def main(args):
   save_g = f'{savedir}/g_{fname}'
   save_b = f'{savedir}/b_{fname}'
 
-  img = Image.open(f'{root}/{fname}')
+  # Check if the filename ends with .png
+  if not fname.lower().endswith('.png'):
+    raise ValueError("File must have a .png extension.")
+
+  # Check if the file path exists
+  file_path = os.path.join(root, fname)
+  if not os.path.isfile(file_path):
+    raise FileNotFoundError(f"The file {file_path} does not exist.")
+
+  # Open the image
+  img = Image.open(file_path)
+
+  # Check if the image size is 0x0
+  if img.size == (0, 0):
+    raise ValueError("The image size is 0x0.")
+
+  M = np.asarray(img)
+
+  # Check if the image has 3 channels
+  if M.ndim != 3 or M.shape[2] != 3:
+    raise ValueError("The image must have 3 channels (RGB).")
+
   M = np.asarray(img)
   height, width, c = M.shape
   height = height/dpi
